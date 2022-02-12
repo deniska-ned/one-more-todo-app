@@ -39,6 +39,7 @@ class TodoAdder extends Component {
         <input
           type="text"
           value={this.state.value}
+          placeholder="Type your todo"
           onChange={this.handleChange}
         ></input>
         <button
