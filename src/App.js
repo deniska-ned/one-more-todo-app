@@ -63,7 +63,8 @@ class TodoAdder extends Component {
 }
 
 class TodoItem extends Component {
-  handleDeleteClick = () => {
+  handleDeleteClick = (event) => {
+    event.stopPropagation();
     console.log("Delete this is ", this.props.data.uuidv4);
     this.props.onItemDeletePressed(this.props.data.uuidv4);
   };
