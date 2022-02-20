@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { v4 as uuidv4 } from "uuid";
+import UUID from "uuid-js";
 import "./App.css";
 
 class TodoItemData {
   constructor(body, isDone = false) {
     this.body = body;
     this.isDone = isDone;
-    this.uuidv4 = uuidv4();
+    this.uuidv4 = UUID.create();
   }
 }
 
