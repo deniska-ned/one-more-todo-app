@@ -12,7 +12,7 @@ class TodoItemData {
 
 class TodoHead extends Component {
   render() {
-    return <h1>One more todo app</h1>;
+    return <h1 className="title">One more todo app</h1>;
   }
 }
 
@@ -33,21 +33,34 @@ class TodoAdder extends Component {
     this.setState({ value: "" });
   };
 
+  handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      this.handleAppendClick();
+    }
+  };
+
   render() {
     return (
-      <div>
-        <input
-          type="text"
-          value={this.state.value}
-          placeholder="Type your todo"
-          onChange={this.handleChange}
-        ></input>
-        <button
-          onClick={this.handleAppendClick}
-          disabled={this.state.value === ""}
-        >
-          Append
-        </button>
+      <div className="columns">
+        <div className="column">
+          <input
+            className="input"
+            type="text"
+            value={this.state.value}
+            placeholder="Type your todo"
+            onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+          />
+        </div>
+        <div className="column is-narrow">
+          <button
+            className="button is-primary"
+            onClick={this.handleAppendClick}
+            disabled={this.state.value === ""}
+          >
+            Add
+          </button>
+        </div>
       </div>
     );
   }
@@ -66,12 +79,18 @@ class TodoItem extends Component {
 
   render() {
     return (
-      <div>
-        <p>{this.props.data.body}</p>
-        <button onClick={this.handleDoneClick}>
-          {this.props.data.isDone ? "Not Done" : "Done"}
-        </button>
-        <button onClick={this.handleDeleteClick}>Remove</button>
+      <div className="column is-one-third">
+        <div className="notification" onClick={this.handleDoneClick}>
+          <button className="delete" onClick={this.handleDeleteClick} />
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              // onChange={this.handleDoneClick}
+              checked={this.props.data.isDone}
+            />
+            <span className="pl-2">{this.props.data.body}</span>
+          </label>
+        </div>
       </div>
     );
   }
@@ -81,14 +100,32 @@ class TodoItems extends Component {
   render() {
     return (
       <div>
-        {this.props.todosData.map((todoData) => (
-          <TodoItem
-            key={todoData.uuidv4}
-            data={todoData}
-            onItemDeletePressed={this.props.onItemDeletePressed}
-            onItemDonePressed={this.props.onItemDonePressed}
-          />
-        ))}
+        <h3 className="title is-4">Active</h3>
+        <div className="columns is-multiline">
+          {this.props.todosData
+            .filter((value) => !value.isDone)
+            .map((todoData) => (
+              <TodoItem
+                key={todoData.uuidv4}
+                data={todoData}
+                onItemDeletePressed={this.props.onItemDeletePressed}
+                onItemDonePressed={this.props.onItemDonePressed}
+              />
+            ))}
+        </div>
+        <h3 className="title is-4">Done</h3>
+        <div className="columns is-multiline">
+          {this.props.todosData
+            .filter((value) => value.isDone)
+            .map((todoData) => (
+              <TodoItem
+                key={todoData.uuidv4}
+                data={todoData}
+                onItemDeletePressed={this.props.onItemDeletePressed}
+                onItemDonePressed={this.props.onItemDonePressed}
+              />
+            ))}
+        </div>
       </div>
     );
   }
@@ -110,19 +147,29 @@ class TodoBody extends Component {
 }
 
 class App extends Component {
+  static lsKey = "AppState";
+
   constructor() {
     super();
 
-    this.state = {
-      todosData: [
-        new TodoItemData("Don't look at me", false),
-        new TodoItemData("Remove me, please", true),
-        new TodoItemData("Would you some some C++", false),
-      ],
-    };
+    this.state = JSON.parse(localStorage.getItem(App.lsKey));
+
+    if (this.state === null) {
+      this.state = {
+        todosData: [
+          new TodoItemData("Don't look at me", false),
+          new TodoItemData("Remove me, please", true),
+          new TodoItemData("Would you some some C++", false),
+        ],
+      };
+    }
 
     this.handleDeleteItem = this.handleDeleteItem.bind(this);
     this.handleDoneItem = this.handleDoneItem.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    localStorage.setItem(App.lsKey, JSON.stringify(this.state));
   }
 
   handleDeleteItem(id) {
@@ -135,11 +182,16 @@ class App extends Component {
     console.log("Id: ", id);
     const todosDataCopy = [...this.state.todosData];
 
-    todosDataCopy.forEach(function (part, index, arr) {
-      if (arr[index].uuidv4 === id) {
-        arr[index] = { ...arr[index], isDone: !arr[index].isDone };
-      }
-    });
+    const i = todosDataCopy.findIndex((item) => item.uuidv4 === id);
+    console.log("index: ", i);
+
+    todosDataCopy[i] = {
+      ...todosDataCopy[i],
+      isDone: !todosDataCopy[i].isDone,
+    };
+
+    const removed = todosDataCopy.splice(i, 1);
+    todosDataCopy.unshift(removed[0]);
 
     this.setState({ todosData: todosDataCopy });
   }
@@ -155,15 +207,17 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <TodoHead />
-        <TodoBody
-          todosData={this.state.todosData}
-          onItemDeletePressed={this.handleDeleteItem}
-          onItemDonePressed={this.handleDoneItem}
-          onItemAddPressed={this.handleAddNewItem}
-        />
-      </div>
+      <section className="section">
+        <div className="container">
+          <TodoHead />
+          <TodoBody
+            todosData={this.state.todosData}
+            onItemDeletePressed={this.handleDeleteItem}
+            onItemDonePressed={this.handleDoneItem}
+            onItemAddPressed={this.handleAddNewItem}
+          />
+        </div>
+      </section>
     );
   }
 }
