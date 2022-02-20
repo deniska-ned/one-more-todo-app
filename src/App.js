@@ -17,11 +17,7 @@ class TodoHead extends Component {
 }
 
 class TodoAdder extends Component {
-  constructor() {
-    super();
-
-    this.state = { value: "" };
-  }
+  state = { value: "" };
 
   handleChange = (event) => {
     this.setState({ value: event.target.value });
@@ -157,28 +153,26 @@ class App extends Component {
     if (this.state === null) {
       this.state = {
         todosData: [
-          new TodoItemData("Don't look at me", false),
-          new TodoItemData("Remove me, please", true),
-          new TodoItemData("Would you some some C++", false),
+          new TodoItemData("Иди товарищ, к нам в колхоз", false),
+          new TodoItemData("Не пей метилового спирта", true),
+          new TodoItemData("Молодой инженер, в цех!", false),
+          new TodoItemData("Путешествуйте по горам Кавказа", false),
         ],
       };
     }
-
-    this.handleDeleteItem = this.handleDeleteItem.bind(this);
-    this.handleDoneItem = this.handleDoneItem.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
     localStorage.setItem(App.lsKey, JSON.stringify(this.state));
   }
 
-  handleDeleteItem(id) {
+  handleDeleteItem = (id) => {
     this.setState((state, props) => ({
       todosData: state.todosData.filter((item) => item.uuidv4 !== id),
     }));
-  }
+  };
 
-  handleDoneItem(id) {
+  handleDoneItem = (id) => {
     console.log("Id: ", id);
     const todosDataCopy = [...this.state.todosData];
 
@@ -194,7 +188,7 @@ class App extends Component {
     todosDataCopy.unshift(removed[0]);
 
     this.setState({ todosData: todosDataCopy });
-  }
+  };
 
   handleAddNewItem = (data) => {
     console.log("New item, data:", data.body);
